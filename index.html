@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#12382f">
+<title>My Calorie Counter</title>
+<style>
+:root{--green:#12382f;--mint:#c7f5d9;--pink:#fbe5ec;--rose:#ac2852;--line:#dfe7e2;--muted:#61716a;--bg:#f5f8f6;--white:#fff}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#18231e;font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+main{max-width:680px;margin:auto;padding:16px;display:grid;gap:16px}
+.panel{background:var(--white);border:1px solid var(--line);border-radius:20px;padding:18px;box-shadow:0 4px 18px #17392b0b}
+.hero{background:var(--green);color:white;border:0}.brand{display:flex;align-items:center;gap:12px}.logo{width:46px;height:46px;display:grid;place-items:center;background:var(--mint);color:var(--green);border-radius:14px;font-size:24px}.sub{color:#c7e8d7;font-size:14px}.muted{color:var(--muted);font-size:14px}.eyebrow{color:#c7e8d7;font-size:12px;letter-spacing:.08em;margin-top:20px}.big{font-size:38px;font-weight:800;margin:3px 0 12px}.bar{height:8px;background:#3c5c50;border-radius:99px;overflow:hidden}.fill{height:100%;background:#9ce8bc;width:0}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}.stat{background:#24493d;border-radius:12px;padding:10px}.stat small{display:block;color:#c7e8d7}.stat strong{font-size:22px}.target{display:flex;align-items:center;gap:10px}.target input{max-width:120px}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:10px}.tab{border:0;border-radius:14px;padding:14px;background:#e9eeeb;color:#253a30;font-weight:750;font-size:16px}.tab.active.food{background:var(--pink);color:#922344}.tab.active.exercise{background:#ddf5e8;color:#08634f}
+h2{font-size:21px;margin:0 0 12px}label{font-weight:650;display:block;margin:4px 0 6px}input,textarea,select{font:inherit;width:100%;border:1.5px solid #cbd6cf;border-radius:12px;padding:13px;background:#fff;color:#18231e}textarea{resize:vertical}.field{margin:12px 0}.radio{display:flex;align-items:flex-start;gap:9px;margin:10px 0}.radio input{width:auto;margin-top:5px}.primary{display:block;width:100%;border:0;border-radius:13px;background:#087b61;color:white;font-weight:800;letter-spacing:.02em;padding:15px 12px;font-size:15px;cursor:pointer;min-height:50px}.primary.pink{background:#ac2852}.primary:disabled{background:#d4ddd7;color:#56645b;cursor:not-allowed}.secondary{background:white;border:1px solid #cbd6cf;color:#34483c}.result{background:#f0f5f1;border-radius:14px;padding:14px;margin-top:12px}.result-total{font-size:26px;font-weight:800;color:#087b61}.row{display:flex;align-items:center;gap:8px}.row .grow{flex:1}.entry{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid #e7ece8}.entry:last-child{border-bottom:0}.entry-name{flex:1;min-width:0;overflow-wrap:anywhere}.entry small{display:block;color:var(--muted)}.amount{font-weight:800;white-space:nowrap}.remove{border:0;background:#f1f3f2;border-radius:8px;padding:6px 10px;font-size:18px;cursor:pointer}.totals{display:flex;justify-content:space-between;gap:12px;align-items:center}.remaining{font-size:25px;font-weight:800}.note{background:#fff5d8;padding:12px;border-radius:12px;color:#5f4a0b;font-size:14px}.empty{text-align:center;color:var(--muted);padding:20px 6px}.pill{font-size:12px;background:#e9f4ed;padding:4px 9px;border-radius:99px}
+@media(min-width:560px){main{padding:24px}.panel{padding:22px}}
+</style>
+</head>
+<body>
+<main>
+<section class="panel hero">
+ <div class="brand"><div class="logo">＋</div><div><h2 style="margin:0">My Calorie Counter</h2><div class="sub">Quick entry, automatic totals</div></div></div>
+ <div class="eyebrow">CALORIES LEFT</div><div class="big" id="remaining">1,285 kcal</div>
+ <div class="bar"><div class="fill" id="progress"></div></div>
+ <div class="stats"><div class="stat"><small>Food</small><strong id="foodTotal">0</strong></div><div class="stat"><small>Burned</small><strong id="burnTotal">0</strong></div><div class="stat"><small>Net</small><strong id="netTotal">0</strong></div></div>
+ <div class="target"><label for="goal" style="margin:0;flex:1;color:#c7e8d7">Daily target (kcal)</label><input id="goal" type="number" min="0" value="1200" inputmode="numeric" aria-label="Daily calorie target"><button id="resetGoal" type="button" title="Reset target to 1200 kcal" aria-label="Reset calorie target" style="border:0;border-radius:10px;padding:12px;background:#c7f5d9;color:#12382f;font-weight:800;white-space:nowrap;cursor:pointer">RESET</button></div>
+</section>
+<div class="tabs"><button class="tab active food" id="foodTab">＋ Add food</button><button class="tab" id="exerciseTab">↗ Exercise</button></div>
+<section class="panel" id="formPanel"></section>
+<section class="panel">
+ <div class="row"><h2 class="grow" style="margin:0">Today's entries</h2><span class="pill" id="count">0 entries</span></div>
+ <div id="entries"><div class="empty">Nothing logged yet. Add food or exercise above.</div></div>
+ <hr style="border:0;border-top:1px solid #e1e8e3;margin:12px 0">
+ <div class="totals"><div><small class="muted">Net calories</small><div class="remaining" id="netBottom">0 kcal</div></div><div style="text-align:right"><small class="muted">Remaining</small><div class="remaining" id="leftBottom">1,285</div></div></div>
+ <button class="primary secondary" id="reset" style="margin-top:16px">RESET TODAY</button>
+</section>
+<p class="muted">Estimates are approximate. Exercise burn varies by body weight and intensity. Entries are saved on this device in this browser.</p>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+let mode='food', entryType='manual', entries=[];
+try{entries=JSON.parse(localStorage.getItem('calorieEntries')||'[]')}catch(e){entries=[]}
+const foodData=[
+['digestive biscuit',70],['fish fingers',65],['baked beans',160],['crumpet',105],['butter',75],['banana',105],['apple',80],['toast',100],['bread',100],['porridge',180],['oats',180],['milk',50],['biscuit',50],['crisps',130],['chocolate',135],['spaghetti',240],['pasta',240],['rice',200],['salmon',210],['tuna',120],['halloumi',320],['wrap',200],['cheese',125],['pizza slice',285],['sandwich',350],['yoghurt',100],['yogurt',100],['chips',300],['quorn',110],['soup',150],['potato',200],['coffee',35],['tea',25]
+];
+function estimateFood(s,portion){
+ const lower=s.toLowerCase(); let found=[]; let working=lower;
+ const escapeRegExp = value => value.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+ const sorted=[...foodData].sort((a,b)=>b[0].length-a[0].length);
+ for(const [name,kcal] of sorted){
+   const escaped=escapeRegExp(name);
+   const re=new RegExp('\\b(\\d+|one|two|three|four|five|six)?\\s*'+escaped+'s?\\b','i');
+   const m=working.match(re);
+   if(m){
+     const words={one:1,two:2,three:3,four:4,five:5,six:6};
+     const q=m[1]?(words[m[1].toLowerCase()]||Number(m[1])):1;
+     found.push({name,kcal:Math.round(kcal*q)});
+     working=working.replace(re,' ');
+   }
+ }
+ if(/\bwith butter\b/.test(lower)&&!found.some(x=>x.name==='butter'))found.push({name:'butter',kcal:75});
+ if(!found.length)return null;
+ const factor=portion==='Small'?.75:portion==='Large'?1.3:1;
+ return {items:found,total:Math.round(found.reduce((a,b)=>a+b.kcal,0)*factor)};
+}
+function renderForm(){
+ $('foodTab').className='tab '+(mode==='food'?'active food':'');
+ $('exerciseTab').className='tab '+(mode==='exercise'?'active exercise':'');
+ if(mode==='food'){
+ $('formPanel').innerHTML=`<h2>Add food</h2>
+ <label class="radio"><input type="radio" name="entryType" value="manual" ${entryType==='manual'?'checked':''}> <span>Enter calories directly</span></label>
+ <label class="radio"><input type="radio" name="entryType" value="estimate" ${entryType==='estimate'?'checked':''}> <span>Enter food — estimate calories</span></label>
+ <div id="foodManual" ${entryType==='manual'?'':'hidden'}>
+ <div class="field"><label for="calories">Calories (required)</label><input id="calories" type="number" min="0" step="1" inputmode="numeric" placeholder="e.g. 150"></div>
+ <div class="field"><label for="description">Description (optional)</label><input id="description" placeholder="e.g. Lunch"></div>
+ <button class="primary" id="addFood">ADD TO MY DAY</button></div>
+ <div id="foodEstimate" ${entryType==='estimate'?'':'hidden'}>
+ <div class="field"><label for="foodText">What did you eat?</label><textarea id="foodText" rows="2" placeholder="e.g. 2 crumpets with butter"></textarea></div>
+ <div class="field"><label for="portion">Portion size</label><select id="portion"><option>Regular</option><option>Small</option><option>Large</option></select></div>
+ <button class="primary pink" id="estimateFood">ESTIMATE CALORIES</button><div id="foodResult"></div></div>`;
+ document.querySelectorAll('input[name="entryType"]').forEach(el=>el.addEventListener('change',e=>{entryType=e.target.value;renderForm()}));
+ if(entryType==='manual'){
+ const c=$('calories'),d=$('description'),b=$('addFood');
+ const sync=()=>{b.disabled=c.value.trim()===''||!Number.isFinite(Number(c.value))||Number(c.value)<0};
+ c.addEventListener('input',sync);d.addEventListener('input',()=>{});sync();
+ b.addEventListener('click',()=>{if(c.value.trim()===''||Number(c.value)<0)return;addEntry('food',d.value||'Calories added',Number(c.value))});
+ }else{
+ $('estimateFood').addEventListener('click',()=>{const r=estimateFood($('foodText').value,$('portion').value);const out=$('foodResult');if(!r){out.innerHTML='<p class="note">I could not recognise that food. Try a common food or enter calories directly.</p>';return}out.innerHTML=`<div class="result"><div class="result-total">${r.total} kcal estimated</div>${r.items.map(x=>`<div class="row" style="justify-content:space-between;margin:7px 0"><span>${x.name}</span><strong>${x.kcal} kcal</strong></div>`).join('')}<button class="primary" id="confirmFood" style="margin-top:12px">ADD TO MY DAY</button></div>`;$('confirmFood').addEventListener('click',()=>addEntry('food',$('foodText').value,r.total))});
+ }
+ }else{
+ $('formPanel').innerHTML=`<h2>Deduct exercise</h2>
+ <label class="radio"><input type="radio" name="entryType" value="manual" ${entryType==='manual'?'checked':''}> <span>Enter calories burned directly</span></label>
+ <label class="radio"><input type="radio" name="entryType" value="estimate" ${entryType==='estimate'?'checked':''}> <span>Estimate from activity</span></label>
+ <div id="burnManual" ${entryType==='manual'?'':'hidden'}>
+ <div class="field"><label for="burnCalories">Calories burned (required)</label><input id="burnCalories" type="number" min="0" step="1" inputmode="numeric" placeholder="e.g. 250"></div>
+ <div class="field"><label for="burnName">Activity (optional)</label><input id="burnName" placeholder="e.g. Cardio"></div>
+ <button class="primary" id="deduct">DEDUCT FROM MY DAY</button></div>
+ <div id="burnEstimate" ${entryType==='estimate'?'':'hidden'}>
+ <div class="field"><label for="activity">Activity</label><input id="activity" placeholder="e.g. cardio, walking, netball"></div>
+ <div class="field"><label for="minutes">Duration (minutes)</label><input id="minutes" type="number" min="1" value="30"></div>
+ <button class="primary" id="estimateBurn">ESTIMATE CALORIES BURNED</button><div id="burnResult"></div></div>`;
+ document.querySelectorAll('input[name="entryType"]').forEach(el=>el.addEventListener('change',e=>{entryType=e.target.value;renderForm()}));
+ if(entryType==='manual'){
+ const c=$('burnCalories'),n=$('burnName'),b=$('deduct');
+ const sync=()=>{b.disabled=c.value.trim()===''||!Number.isFinite(Number(c.value))||Number(c.value)<0};
+ c.addEventListener('input',sync);sync();
+ b.addEventListener('click',()=>{if(c.value.trim()===''||Number(c.value)<0)return;addEntry('exercise',n.value||'Exercise calories',Number(c.value))});
+ }else{
+ $('estimateBurn').addEventListener('click',()=>{const a=$('activity').value.toLowerCase(),m=Math.max(1,Number($('minutes').value)||30);let rate=null;if(/hiit|high intensity/.test(a))rate=13;else if(/running|run|jog/.test(a))rate=10;else if(/cardio|aerobic|treadmill/.test(a))rate=8;else if(/walking|walk/.test(a))rate=4;else if(/cycling|cycle|bike/.test(a))rate=7;else if(/dance/.test(a))rate=6;else if(/netball/.test(a))rate=8;else if(/swim/.test(a))rate=7;else if(/strength|weights|gym/.test(a))rate=5;else if(/yoga/.test(a))rate=3;const out=$('burnResult');if(rate===null){out.innerHTML='<p class="note">Try walking, running, cardio, cycling, dance, netball, swimming or weights.</p>';return}const kcal=Math.round(rate*m);out.innerHTML=`<div class="result"><div class="result-total">About ${kcal} kcal burned</div><button class="primary" id="confirmBurn" style="margin-top:12px">DEDUCT FROM MY DAY</button></div>`;$('confirmBurn').addEventListener('click',()=>addEntry('exercise',$('activity').value||'Exercise',kcal))});
+ }
+ }
+}
+function addEntry(kind,name,kcal){entries.push({id:Date.now()+Math.random(),kind,name,kcal:Math.round(Number(kcal))});save();renderTotals();renderForm()}
+function save(){try{localStorage.setItem('calorieEntries',JSON.stringify(entries))}catch(e){}}
+function renderTotals(){
+ const food=entries.filter(x=>x.kind==='food').reduce((a,b)=>a+b.kcal,0),burn=entries.filter(x=>x.kind==='exercise').reduce((a,b)=>a+b.kcal,0),net=food-burn,goal=Math.max(0,Number($('goal').value)||0),left=goal-net;
+ $('foodTotal').textContent=food.toLocaleString('en-GB');$('burnTotal').textContent=burn.toLocaleString('en-GB');$('netTotal').textContent=net.toLocaleString('en-GB');$('remaining').textContent=left.toLocaleString('en-GB')+' kcal';$('progress').style.width=(goal?Math.max(0,Math.min(100,net/goal*100)):0)+'%';$('netBottom').textContent=net.toLocaleString('en-GB')+' kcal';$('leftBottom').textContent=left.toLocaleString('en-GB');$('count').textContent=entries.length+' entr'+(entries.length===1?'y':'ies');
+ $('entries').innerHTML=entries.length?entries.slice().reverse().map(x=>`<div class="entry"><div>${x.kind==='food'?'🍽️':'🏃'}</div><div class="entry-name">${escapeHtml(x.name)}<small>${x.kind==='food'?'Food':'Exercise'}</small></div><div class="amount">${x.kind==='food'?'+':'−'}${x.kcal}</div><button class="remove" aria-label="Remove ${escapeHtml(x.name)}" data-id="${x.id}">×</button></div>`).join(''):'<div class="empty">Nothing logged yet. Add food or exercise above.</div>';
+ document.querySelectorAll('.remove').forEach(b=>b.addEventListener('click',()=>{entries=entries.filter(x=>String(x.id)!==b.dataset.id);save();renderTotals()}));
+}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+$('foodTab').addEventListener('click',()=>{mode='food';entryType='manual';renderForm()});
+$('exerciseTab').addEventListener('click',()=>{mode='exercise';entryType='manual';renderForm()});
+$('goal').addEventListener('input',renderTotals);
+$('resetGoal').addEventListener('click',()=>{ $('goal').value='1200'; renderTotals(); });
+$('reset').addEventListener('click',()=>{if(confirm("Clear all of today's entries?")){entries=[];save();renderTotals()}});
+renderForm();renderTotals();
+</script>
+</body></html>
